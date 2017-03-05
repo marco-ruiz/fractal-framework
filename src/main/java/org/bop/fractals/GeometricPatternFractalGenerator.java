@@ -20,10 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
+import org.bop.fractals.progress.IProgressListener;
 import org.bop.fractals.progress.ThresholdProgressUpdater;
 
 /**
@@ -38,27 +36,27 @@ public class GeometricPatternFractalGenerator<SHAPE_T extends Shape<SHAPE_T>> ex
 	protected boolean lastIterOnly;
 
 	private ThresholdProgressUpdater syncProgressUpdater;
-	private Map<Integer, List<SHAPE_T>> shapesByRecursionLevel = new HashMap<>();
+	private Map<Integer, List<SHAPE_T>> shapesByRecursionLevel = new HashMap<Integer, List<SHAPE_T>>();
 
-	public GeometricPatternFractalGenerator(List<SHAPE_T> pattern, int numIter, boolean lastIterOnly, Consumer<Float> progressWriter) {
+	public GeometricPatternFractalGenerator(List<SHAPE_T> pattern, int numIter, boolean lastIterOnly, IProgressListener progressWriter) {
 		patterns = new ArrayList<SHAPE_T>(pattern);
 		base = patterns.remove(0);
 		init(numIter, lastIterOnly, progressWriter);
 	}
 
-	public GeometricPatternFractalGenerator(SHAPE_T base, List<SHAPE_T> patterns, int numIter, boolean lastIterOnly, Consumer<Float> progressWriter) {
+	public GeometricPatternFractalGenerator(SHAPE_T base, List<SHAPE_T> patterns, int numIter, boolean lastIterOnly, IProgressListener progressWriter) {
 		setBase(base);
 		setPatterns(patterns);
 		init(numIter, lastIterOnly, progressWriter);
 	}
 
-	private void init(int numIter, boolean lastIterOnly, Consumer<Float> progressWriter) {
+	private void init(int numIter, boolean lastIterOnly, IProgressListener progressWriter) {
 		setNumRecursions(numIter);
 		setLastIterOnly(lastIterOnly);
 		this.syncProgressUpdater = new ThresholdProgressUpdater(progressWriter, calculateNumGeometriesToCompute(), 2);
 		setProgressUpdater(syncProgressUpdater);
 
-		this.patterns.stream().forEach(patternUnit -> patternUnit.computeConstants(base));
+		for (SHAPE_T shape : patterns) shape.computeConstants(this.base);
 	}
 
 	public SHAPE_T getBase() {
@@ -89,7 +87,7 @@ public class GeometricPatternFractalGenerator<SHAPE_T extends Shape<SHAPE_T>> ex
 		this.lastIterOnly = lastIterOnly;
 	}
 
-	public void setProgressListener(Consumer<Float> progressListener) {
+	public void setProgressListener(IProgressListener progressListener) {
 		this.syncProgressUpdater = new ThresholdProgressUpdater(progressListener, calculateNumGeometriesToCompute(), 2);
 	}
 
@@ -103,32 +101,32 @@ public class GeometricPatternFractalGenerator<SHAPE_T extends Shape<SHAPE_T>> ex
 	}
 
 	protected void buildFractalShapes() {
-		shapesByRecursionLevel.computeIfAbsent(0, ArrayList::new).addAll(patterns);
-		IntStream.range(1, numRecursions).forEach(this::computeRecursionLevel);
+		shapesByRecursionLevel.put(0, new ArrayList<SHAPE_T>(patterns));
+		for (int idx = 1; idx < numRecursions; idx++) computeRecursionLevel(idx);
+		computedShapes = (lastIterOnly) ? shapesByRecursionLevel.get(numRecursions - 1) : getAllShapes();
+	}
 
-		computedShapes = (lastIterOnly) ?
-			shapesByRecursionLevel.get(numRecursions - 1) :
-			shapesByRecursionLevel.values().stream()
-					.flatMap(List::stream)
-					.collect(Collectors.toList());
+	private List<SHAPE_T> getAllShapes() {
+		List<SHAPE_T> result = new ArrayList<SHAPE_T>();
+		for (List<SHAPE_T> shapes : shapesByRecursionLevel.values()) result.addAll(shapes);
+		return result;
 	}
 
 	private void computeRecursionLevel(int recursionLevel) {
 		List<SHAPE_T> prevRecShapes = shapesByRecursionLevel.get(recursionLevel - 1);
-		List<SHAPE_T> currRecShapes =
-				patterns.parallelStream()
-					.map(pattern -> computeEquivalencesOf(prevRecShapes, pattern))
-					.flatMap(List::stream)
-					.collect(Collectors.toList());
+		List<SHAPE_T> currRecShapes = new ArrayList<SHAPE_T>();
+		for (SHAPE_T shape : patterns) currRecShapes.addAll(computeEquivalencesOf(prevRecShapes, shape));
+
 		shapesByRecursionLevel.put(recursionLevel, currRecShapes);
 	}
 
 	private List<SHAPE_T> computeEquivalencesOf(List<SHAPE_T> prevRecShapes, SHAPE_T pattern) {
-		return prevRecShapes.stream()
-			.filter(relBase -> !interrupted)
-			.map(relBase -> relBase.computeGeometryEquivalentTo(pattern))
-			.peek(equiv -> syncProgressUpdater.incrementGenerated())
-			.collect(Collectors.toList());
+		List<SHAPE_T> result = new ArrayList<SHAPE_T>();
+		for (SHAPE_T relBase : prevRecShapes) {
+			result.add(relBase.computeGeometryEquivalentTo(pattern));
+			syncProgressUpdater.incrementGenerated();
+		}
+		return result;
 	}
 }
 
