@@ -29,7 +29,7 @@ public class FractalLine implements Shape<FractalLine> {
 	public final float Bx;
 	public final float By;
 
-	public final Object rgbColorValue;
+	public final Object color;
 
 	// Only pattern lines need PatternConstants. By default they are null.
 	private PatternConstants kA = null;
@@ -44,7 +44,7 @@ public class FractalLine implements Shape<FractalLine> {
 		this.Ay = Ay;
 		this.Bx = Bx;
 		this.By = By;
-		this.rgbColorValue = color;
+		this.color = color;
 	}
 
 	public void computeConstants(FractalLine baseLine) {
@@ -90,7 +90,7 @@ public class FractalLine implements Shape<FractalLine> {
 		float compBx = Ax + constantsB.x * xDiff - constantsB.y * yDiff;
 		float compBy = Ay + constantsB.x * yDiff + constantsB.y * xDiff;
 
-		return new FractalLine(compAx, compAy, compBx, compBy, patternLine.rgbColorValue);
+		return new FractalLine(compAx, compAy, compBx, compBy, patternLine.color);
 	}
 
 	@Override
