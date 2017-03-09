@@ -1,5 +1,4 @@
 apply plugin: 'java'
-//apply plugin: 'eclipse'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -11,12 +10,3 @@ repositories {
 dependencies {
     testCompile 'junit:junit:4.12'
 }
-
-/*
-eclipse {
-	project {
-		natures 'org.eclipse.buildship.core.gradleprojectnature'
-		buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
-	}
-}
-*/
