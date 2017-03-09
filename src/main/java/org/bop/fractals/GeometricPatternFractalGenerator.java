@@ -98,25 +98,25 @@ public class GeometricPatternFractalGenerator<SHAPE_T extends Shape<SHAPE_T>> ex
 		return (long) ((numPatterns * (Math.pow(numPatterns, numRecursions) - 1) / (numPatterns - 1)) - numPatterns);
 	}
 
+	public List<SHAPE_T> getFractal() {
+		return (lastIterOnly) ? getFractal(numRecursions - 1) : super.getFractal();
+	}
+
 	public List<SHAPE_T> getFractal(int recursionLevel) {
 		return shapesByRecursionLevel.get(recursionLevel);
 	}
 
 	protected void buildFractalShapes() {
 		shapesByRecursionLevel.computeIfAbsent(0, ArrayList::new).addAll(patterns);
-		IntStream.range(1, numRecursions).forEach(this::computeRecursionLevel);
+		patterns.stream().forEach(shape -> addFractalShape(shape));
 
-		computedShapes = (lastIterOnly) ?
-			shapesByRecursionLevel.get(numRecursions - 1) :
-			shapesByRecursionLevel.values().stream()
-					.flatMap(List::stream)
-					.collect(Collectors.toList());
+		IntStream.range(1, numRecursions).forEach(this::computeRecursionLevel);
 	}
 
 	private void computeRecursionLevel(int recursionLevel) {
 		List<SHAPE_T> prevRecShapes = shapesByRecursionLevel.get(recursionLevel - 1);
 		List<SHAPE_T> currRecShapes =
-				patterns.parallelStream()
+				patterns.stream()
 					.map(pattern -> computeEquivalencesOf(prevRecShapes, pattern))
 					.flatMap(List::stream)
 					.collect(Collectors.toList());
@@ -127,7 +127,8 @@ public class GeometricPatternFractalGenerator<SHAPE_T extends Shape<SHAPE_T>> ex
 		return prevRecShapes.stream()
 			.filter(relBase -> !interrupted)
 			.map(relBase -> relBase.computeGeometryEquivalentTo(pattern))
-			.peek(equiv -> syncProgressUpdater.incrementGenerated())
+			.peek(shape -> syncProgressUpdater.incrementGenerated())
+			.peek(shape -> addFractalShape(shape))
 			.collect(Collectors.toList());
 	}
 }

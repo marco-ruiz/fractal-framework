@@ -101,5 +101,9 @@ public abstract class GeometricFractalGenerator<SHAPE_T> implements Runnable {
 	public long getTotalNumGeometries() {
 		return totalNumGeometries;
 	}
+
+	protected void addFractalShape(SHAPE_T shape) {
+		computedShapes.add(shape);
+	}
 }
 
