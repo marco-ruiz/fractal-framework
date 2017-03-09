@@ -29,17 +29,17 @@ public class FractalLine implements Shape<FractalLine> {
 	public final float Bx;
 	public final float By;
 
-	public final int rgbColorValue;
+	public final Object rgbColorValue;
 
 	// Only pattern lines need PatternConstants. By default they are null.
 	private PatternConstants kA = null;
 	private PatternConstants kB = null;
 
 	public FractalLine(float Ax, float Ay, float Bx, float By) {
-		this(Ax, Ay, Bx, By, 0);
+		this(Ax, Ay, Bx, By, null);
 	}
 
-	public FractalLine(float Ax, float Ay, float Bx, float By, int color) {
+	public FractalLine(float Ax, float Ay, float Bx, float By, Object color) {
 		this.Ax = Ax;
 		this.Ay = Ay;
 		this.Bx = Bx;
