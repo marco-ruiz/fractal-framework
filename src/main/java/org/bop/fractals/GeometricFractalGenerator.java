@@ -73,9 +73,13 @@ public abstract class GeometricFractalGenerator<SHAPE_T> implements Runnable {
 		computing.set(true);
 		totalNumGeometries = calculateNumGeometriesToCompute();
 		computedShapes = new ArrayList<>();
-		progressUpdater.start();
+
+		if (progressUpdater != null)
+			progressUpdater.start();
 		buildFractalShapes();
-		progressUpdater.updateComplete();
+		if (progressUpdater != null)
+			progressUpdater.updateComplete();
+
 		computing.set(false);
 	}
 
