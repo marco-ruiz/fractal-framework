@@ -95,7 +95,8 @@ public class GeometricPatternFractalGenerator<SHAPE_T extends Shape<SHAPE_T>> ex
 
 	protected long calculateNumGeometriesToCompute() {
 		int numPatterns = patterns.size();
-		return (long) ((numPatterns * (Math.pow(numPatterns, numRecursions) - 1) / (numPatterns - 1)) - numPatterns);
+		long factor = (numPatterns == 1) ? 1 : (long)(Math.pow(numPatterns, numRecursions) - 1) / (numPatterns - 1);
+		return (numPatterns * factor) - numPatterns;
 	}
 
 	public List<SHAPE_T> getFractal() {
