@@ -45,8 +45,7 @@ public class GeometricPatternFractalGenerator<SHAPE_T extends Shape<SHAPE_T>> ex
 	}
 
 	public GeometricPatternFractalGenerator(List<SHAPE_T> pattern, int numRecur, boolean lastRecurOnly, Consumer<Float> progressListener) {
-		patterns = new ArrayList<SHAPE_T>(pattern);
-		base = patterns.remove(0);
+		setBaseAndPatterns(pattern);
 		init(numRecur, lastRecurOnly, progressListener);
 	}
 
@@ -78,6 +77,11 @@ public class GeometricPatternFractalGenerator<SHAPE_T extends Shape<SHAPE_T>> ex
 
 	public void setPatterns(List<SHAPE_T> patterns) {
 		this.patterns = patterns;
+	}
+
+	public void setBaseAndPatterns(List<SHAPE_T> pattern) {
+		this.patterns = new ArrayList<SHAPE_T>(pattern);
+		this.base = patterns.remove(0);
 	}
 
 	public void addPattern(SHAPE_T pattern) {
