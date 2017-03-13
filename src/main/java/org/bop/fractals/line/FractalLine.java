@@ -53,10 +53,9 @@ public class FractalLine implements Shape<FractalLine> {
 	}
 
 	private PatternConstants computeConstantsForPoint(FractalLine base, float x, float y) {
-		float m1, m2;
 		float dx, dy, dax, day;
 		float D;
-		float Cx, Cy;
+		float crossDiff, straightSum;
 
 		dx = base.Bx - base.Ax;
 		dy = base.By - base.Ay;
@@ -64,18 +63,12 @@ public class FractalLine implements Shape<FractalLine> {
 		dax = x - base.Ax;
 		day = y - base.Ay;
 
-		D = dx * dx + dy * dy;
-		if ((D == 0) || (dx * dax + dy * day == 0) || (dx * dax + dy * day - D == 0)) {
-			// TODO: Handle error
-		}
-		m1 = ((dx * day - dy * dax) / (dx * dax + dy * day));
-		m2 = ((dx * day - dy * dax) / (dx * dax + dy * day - D));
+		crossDiff = dx * day - dy * dax;
+		straightSum = dx * dax + dy * day;
 
-		// Constants
-		Cx = m2 / (m2 - m1);
-		Cy = m1 * Cx;
+		D = dx * dx + dy * dy;  // Only 0 if base.A == base.B !!!
 
-		return new PatternConstants(Cx, Cy);
+		return new PatternConstants(straightSum/D, crossDiff/D);
 	}
 
 	public FractalLine computeGeometryEquivalentTo(FractalLine patternLine) {
