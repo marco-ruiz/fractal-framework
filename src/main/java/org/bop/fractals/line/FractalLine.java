@@ -24,10 +24,10 @@ import org.bop.fractals.Shape;
  */
 public class FractalLine implements Shape<FractalLine> {
 
-	public final float Ax;
-	public final float Ay;
-	public final float Bx;
-	public final float By;
+	public final double Ax;
+	public final double Ay;
+	public final double Bx;
+	public final double By;
 
 	public final Object color;
 
@@ -35,11 +35,11 @@ public class FractalLine implements Shape<FractalLine> {
 	private PatternConstants kA = null;
 	private PatternConstants kB = null;
 
-	public FractalLine(float Ax, float Ay, float Bx, float By) {
+	public FractalLine(double Ax, double Ay, double Bx, double By) {
 		this(Ax, Ay, Bx, By, null);
 	}
 
-	public FractalLine(float Ax, float Ay, float Bx, float By, Object color) {
+	public FractalLine(double Ax, double Ay, double Bx, double By, Object color) {
 		this.Ax = Ax;
 		this.Ay = Ay;
 		this.Bx = Bx;
@@ -52,10 +52,10 @@ public class FractalLine implements Shape<FractalLine> {
 		kB = computeConstantsForPoint(baseLine, Bx, By);
 	}
 
-	private PatternConstants computeConstantsForPoint(FractalLine base, float x, float y) {
-		float dx, dy, dax, day;
-		float D;
-		float crossDiff, straightSum;
+	private PatternConstants computeConstantsForPoint(FractalLine base, double x, double y) {
+		double dx, dy, dax, day;
+		double D;
+		double crossDiff, straightSum;
 
 		dx = base.Bx - base.Ax;
 		dy = base.By - base.Ay;
@@ -75,13 +75,13 @@ public class FractalLine implements Shape<FractalLine> {
 		PatternConstants constantsA = patternLine.kA;
 		PatternConstants constantsB = patternLine.kB;
 
-		float xDiff = Bx - Ax;
-		float yDiff = By - Ay;
+		double xDiff = Bx - Ax;
+		double yDiff = By - Ay;
 
-		float compAx = Ax + constantsA.x * xDiff - constantsA.y * yDiff;
-		float compAy = Ay + constantsA.x * yDiff + constantsA.y * xDiff;
-		float compBx = Ax + constantsB.x * xDiff - constantsB.y * yDiff;
-		float compBy = Ay + constantsB.x * yDiff + constantsB.y * xDiff;
+		double compAx = Ax + constantsA.x * xDiff - constantsA.y * yDiff;
+		double compAy = Ay + constantsA.x * yDiff + constantsA.y * xDiff;
+		double compBx = Ax + constantsB.x * xDiff - constantsB.y * yDiff;
+		double compBy = Ay + constantsB.x * yDiff + constantsB.y * xDiff;
 
 		return new FractalLine(compAx, compAy, compBx, compBy, patternLine.color);
 	}
@@ -90,10 +90,16 @@ public class FractalLine implements Shape<FractalLine> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Float.floatToIntBits(Ax);
-		result = prime * result + Float.floatToIntBits(Ay);
-		result = prime * result + Float.floatToIntBits(Bx);
-		result = prime * result + Float.floatToIntBits(By);
+		long temp;
+		temp = Double.doubleToLongBits(Ax);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(Ay);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(Bx);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(By);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
 		return result;
 	}
 
@@ -106,22 +112,27 @@ public class FractalLine implements Shape<FractalLine> {
 		if (getClass() != obj.getClass())
 			return false;
 		FractalLine other = (FractalLine) obj;
-		if (Float.floatToIntBits(Ax) != Float.floatToIntBits(other.Ax))
+		if (Double.doubleToLongBits(Ax) != Double.doubleToLongBits(other.Ax))
 			return false;
-		if (Float.floatToIntBits(Ay) != Float.floatToIntBits(other.Ay))
+		if (Double.doubleToLongBits(Ay) != Double.doubleToLongBits(other.Ay))
 			return false;
-		if (Float.floatToIntBits(Bx) != Float.floatToIntBits(other.Bx))
+		if (Double.doubleToLongBits(Bx) != Double.doubleToLongBits(other.Bx))
 			return false;
-		if (Float.floatToIntBits(By) != Float.floatToIntBits(other.By))
+		if (Double.doubleToLongBits(By) != Double.doubleToLongBits(other.By))
+			return false;
+		if (color == null) {
+			if (other.color != null)
+				return false;
+		} else if (!color.equals(other.color))
 			return false;
 		return true;
 	}
 }
 
 class PatternConstants {
-	public final float x, y;
+	public final double x, y;
 
-	public PatternConstants(float x, float y) {
+	public PatternConstants(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
