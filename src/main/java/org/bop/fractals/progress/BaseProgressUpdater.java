@@ -28,14 +28,14 @@ public class BaseProgressUpdater implements IProgressUpdater {
 
 	private static ExecutorService progressUpdaterService = Executors.newFixedThreadPool(1);
 
-	protected Consumer<Float> progressWriter;
+	protected Consumer<Float> progressListener;
 
 	public BaseProgressUpdater(Consumer<Float> progressWriter) {
-		this.progressWriter = progressWriter;
+		this.progressListener = progressWriter;
 	}
 
 	public void updateProgress(float percentageProgress) {
-		if (progressWriter != null)
-			progressUpdaterService.submit(() -> progressWriter.accept(percentageProgress));
+		if (progressListener != null)
+			progressUpdaterService.submit(() -> progressListener.accept(percentageProgress));
 	}
 }

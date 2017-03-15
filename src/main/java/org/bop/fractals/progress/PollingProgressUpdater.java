@@ -29,12 +29,12 @@ public class PollingProgressUpdater extends BaseProgressUpdater {
 
 	private static ExecutorService progressUpdaterService = Executors.newFixedThreadPool(1);
 
-	protected Supplier<Float> progressReader;
+	protected Supplier<Float> progressSupplier;
 	private boolean interrupted;
 
-	public PollingProgressUpdater(Supplier<Float> progressReader, Consumer<Float> progressWriter) {
-		super(progressWriter);
-		this.progressReader = progressReader;
+	public PollingProgressUpdater(Supplier<Float> progressSupplier, Consumer<Float> progressListener) {
+		super(progressListener);
+		this.progressSupplier = progressSupplier;
 	}
 
 	public void start() {
@@ -46,10 +46,10 @@ public class PollingProgressUpdater extends BaseProgressUpdater {
 	}
 
 	public void run() {
-		if (progressWriter == null) return;
+		if (progressListener == null) return;
 		interrupted = false;
 		while (true) {
-			updateProgress(progressReader.get());
+			updateProgress(progressSupplier.get());
 			try {
 				Thread.currentThread().sleep(100);
 			} catch (InterruptedException e) {}
